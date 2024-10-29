@@ -1,6 +1,4 @@
-# ✨ **Tiếp cận dễ dàng với Streamlit**  
-### 📌 **Sử dụng các tính năng nhằm phục vụ các tác vụ liên quan đến Visionary-T**
-
+# ✨ **Tiếp cận dễ dàng Visionary-T với Streamlit**  
 ---
 
 ## 🌟 **Giới thiệu tổng quan**
