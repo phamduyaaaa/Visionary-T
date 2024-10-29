@@ -1,4 +1,4 @@
-# ✨ **Tiếp cận dễ dàng Visionary-T với Streamlit**  
+# ✨ **Tiếp cận dễ dàng Visionary-T!**  
 ---
 
 ## 🌟 **Giới thiệu tổng quan**
