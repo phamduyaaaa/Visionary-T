@@ -1,4 +1,4 @@
-# ✨ **Tiếp cận dễ dàng Visionary-T!**  
+# ✨ **Tiếp cận dễ dàng Visionary-T !**  
 ---
 
 ## 🌟 **Giới thiệu tổng quan**
