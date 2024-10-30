@@ -1,0 +1,7 @@
+streamlit==1.39.0
+trimesh==4.5.1
+streamlit_option_menu==0.4.0
+plotly==5.24.1
+psutil==6.1.0
+ultralytics==8.3.23
+mss==9.0.2
