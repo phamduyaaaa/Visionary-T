@@ -34,9 +34,10 @@ Giao diện của ứng dụng bao gồm **4 tính năng chính**:
 ---
 
 ## ⚙️ **Cách thực thi ứng dụng**  
-### 1️⃣ Tải source code về máy tính của bạn:
+### 1️⃣ Tải source code về máy tính của bạn và chạy file requirements.txt:
 ```
     git clone https://github.com/phamduyaaaa/Visionary-T.git
+    pip install -r requirements.txt
 ```
 ### 2️⃣ Mở **Terminal** tại thư mục Visionary-T và chạy lệnh:  
 ```
