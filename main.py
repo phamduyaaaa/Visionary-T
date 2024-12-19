@@ -8,6 +8,8 @@ from fonts import get_multiple_fonts_css
 from train import test_image_model, train_model, load_stl, laptop_info, preprocess_image, load_screen
 import time
 import cv2
+import serial
+import time
 # CSS
 st.markdown(get_multiple_fonts_css(), unsafe_allow_html=True)
 st.markdown(
@@ -41,11 +43,12 @@ sidebar_2 = "Visionary-T"
 sidebar_3 = "Test Model"
 sidebar_4 = "STL file"
 sidebar_5 = "Train Model"
+sidebar_6 = "Live"
 with st.sidebar:
     selected = option_menu(
         "Menu",
-        [sidebar_2, sidebar_4, sidebar_5, sidebar_1, sidebar_3],
-        icons=['1-circle-fill', '2-circle-fill', "3-circle-fill", '4-circle-fill', '5-circle-fill'],
+        [sidebar_2, sidebar_4, sidebar_5, sidebar_1, sidebar_3,sidebar_6],
+        icons=['1-circle-fill', '2-circle-fill', "3-circle-fill", '4-circle-fill', '5-circle-fill','6-circle-fill'],
         menu_icon="app", default_index=0,
         styles={
             "container": {"padding": "0!important", "background-color": "#2D3250"},
@@ -111,9 +114,11 @@ if selected == sidebar_1:
         st.markdown('<p class="caption">Confusion Matrix</p>', unsafe_allow_html=True)
     char_data = pd.DataFrame(np.random.rand(20, 3), columns=["A", "B", "C"])
 
+  
 # Test Model Tab
 if selected == sidebar_3:
-    # st.markdown('<p class="handwriting">YOLOv11</p>', unsafe_allow_html=True)
+    ser = serial.Serial('COM6', 9600)  # Windows: COM6, Linux: /dev/ttyUSB0
+    time.sleep(2)  # Đợi 2 giây để Arduino reset
     st.header("YOLOv11")
     uploaded_file = st.file_uploader("Tải lên ảnh của bạn", type=["jpg", "png", "jpeg"])
     col1, col2 = st.columns(2)
@@ -133,6 +138,10 @@ if selected == sidebar_3:
             fps_disp = f"FPS: {fps:.2f}"
             results_fps = cv2.putText(frame, fps_disp, (10, 25), cv2.FONT_HERSHEY_SIMPLEX, 0.7, (0, 255, 0), 2)
             frame_placeholder.image(results_fps, use_column_width=True)
+            if ('ht' in label):
+                ser.write(b'1')
+            elif ('hcn' in label):
+                ser.write(b'0')
             if button:
                 break
 
@@ -201,6 +210,41 @@ if selected == sidebar_5:
                 st.error("Vui lòng nhập một số nguyên hợp lệ. VD: Epochs = 10; Batch size = 16")
         else:
             st.warning("Vui lòng nhập giá trị!")
+    # Live in Other Device
+if selected == sidebar_6:
+    st.header("YOLOv11")
+    uploaded_file = st.file_uploader("Tải lên ảnh của bạn", type=["jpg", "png", "jpeg"])
+    col1, col2 = st.columns(2)
+    with col1:
+        button = st.button("Live")
+    if button:
+        with col2:
+            button = st.button("Stop")
+        frame_placeholder = st.empty()
+        while True:
+            frame = load_screen()
+            start = time.time()
+            results, conf, label, cnt = test_image_model(frame)
+            end = time.time()
+            totalTime = end - start
+            fps = 1 / totalTime
+            fps_disp = f"FPS: {fps:.2f}"
+            results_fps = cv2.putText(frame, fps_disp, (10, 25), cv2.FONT_HERSHEY_SIMPLEX, 0.7, (0, 255, 0), 2)
+            frame_placeholder.image(results_fps, use_column_width=True)
+            if button:
+                break
 
+    if uploaded_file is not None:
+        col1, col2 = st.columns(2)
+        image = preprocess_image(uploaded_file)
+        with col1:
+            st.image(image, caption="Ảnh gốc", use_column_width=True)
+        results, conf, label, cnt = test_image_model(image)
+        st.text("Predicts:")
+        with col2:
+            st.image(results, caption="Ảnh dự đoán", use_column_width=True)
+        for i in range(cnt):
+            st.text(f"{label[i]}: {(conf[i] * 100):.2f}%")
+        st.toast("Done!", icon='😍')
 # Sidebar footer
 st.sidebar.text("@author: phamduyaaaa")
