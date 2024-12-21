@@ -6,7 +6,7 @@ import trimesh
 import pandas as pd
 from fonts import get_multiple_fonts_css
 from train import test_image_model, train_model, load_stl, laptop_info, preprocess_image, load_screen
-import time
+
 import cv2
 import serial
 import time
@@ -43,12 +43,12 @@ sidebar_2 = "Visionary-T"
 sidebar_3 = "Test Model"
 sidebar_4 = "STL file"
 sidebar_5 = "Train Model"
-sidebar_6 = "Live"
+sidebar_6 = "Other Device"
 with st.sidebar:
     selected = option_menu(
         "Menu",
-        [sidebar_2, sidebar_4, sidebar_5, sidebar_1, sidebar_3,sidebar_6],
-        icons=['1-circle-fill', '2-circle-fill', "3-circle-fill", '4-circle-fill', '5-circle-fill','6-circle-fill'],
+        [sidebar_2, sidebar_4, sidebar_5, sidebar_1, sidebar_3, sidebar_6],
+        icons=['1-circle-fill', '2-circle-fill', "3-circle-fill", '4-circle-fill', '5-circle-fill', '6-circle-fill'],
         menu_icon="app", default_index=0,
         styles={
             "container": {"padding": "0!important", "background-color": "#2D3250"},
@@ -77,16 +77,6 @@ with st.sidebar:
         }
     )
 
-# Visionary-T Tab
-if selected == sidebar_2:
-    st.header("Visionary-T")
-    # st.markdown('<p class="handwriting">Visionary-T</p>', unsafe_allow_html=True)
-    st.image("sick1.png")
-    st.text("Là 1 máy ảnh 3D hoạt động dựa trên nguyên tắc time-of-flight (ToF)")
-    st.text("Cung cấp dữ liệu 3D thời gian thực với tốc độ 50 fps (frames per second)")
-    st.text("Cấu tạo")
-    st.image("cautao_vst.png")
-
 # Results Tab
 if selected == sidebar_1:
     progress_text = "Operation in progress. Please wait."
@@ -97,7 +87,6 @@ if selected == sidebar_1:
         my_bar.progress(percent_complete + 1, text=progress_text)
     my_bar.empty()
     st.header("Results")
-    # st.markdown('<p class="handwriting">Results</p>', unsafe_allow_html=True)
     val_img = "runs/detect/train29/predicts.jpg"
     conf_matrix = "runs/detect/train29/conf_matrix.jpg"
     loss_img = "runs/detect/train29/loss_plot.png"
@@ -114,12 +103,20 @@ if selected == sidebar_1:
         st.markdown('<p class="caption">Confusion Matrix</p>', unsafe_allow_html=True)
     char_data = pd.DataFrame(np.random.rand(20, 3), columns=["A", "B", "C"])
 
+# Visionary-T Tab
+if selected == sidebar_2:
+    st.header("Visionary-T")
+    st.image("sick1.png")
+    st.text("Là 1 máy ảnh 3D hoạt động dựa trên nguyên tắc time-of-flight (ToF)")
+    st.text("Cung cấp dữ liệu 3D thời gian thực với tốc độ 50 fps (frames per second)")
+    st.text("Cấu tạo")
+    st.image("cautao_vst.png")
   
 # Test Model Tab
 if selected == sidebar_3:
     ser = serial.Serial('COM6', 9600)  # Windows: COM6, Linux: /dev/ttyUSB0
     time.sleep(2)  # Đợi 2 giây để Arduino reset
-    st.header("YOLOv11")
+    st.header("Test Model")
     uploaded_file = st.file_uploader("Tải lên ảnh của bạn", type=["jpg", "png", "jpeg"])
     col1, col2 = st.columns(2)
     with col1:
@@ -138,9 +135,9 @@ if selected == sidebar_3:
             fps_disp = f"FPS: {fps:.2f}"
             results_fps = cv2.putText(frame, fps_disp, (10, 25), cv2.FONT_HERSHEY_SIMPLEX, 0.7, (0, 255, 0), 2)
             frame_placeholder.image(results_fps, use_column_width=True)
-            if ('ht' in label):
+            if 'ht' in label:
                 ser.write(b'1')
-            elif ('hcn' in label):
+            elif 'hcn' in label:
                 ser.write(b'0')
             if button:
                 break
@@ -160,21 +157,20 @@ if selected == sidebar_3:
 
 # STL File Tab
 if selected == sidebar_4:
-    # st.markdown('<p class="handwriting">3D STL Model Viewer</p>', unsafe_allow_html=True)
     st.header("3D STL Model Viewer")
-    tab_stl1, tab_stl2,tab_stl3 = st.tabs(["Miếng vuông","Con trượt 1","Con trượt 2"])
+    tab_stl1, tab_stl2, tab_stl3 = st.tabs(["Khung", "Băng chuyền", "Hoàn thiện sản phẩm"])
     with tab_stl1:
-        stl_mesh1 = trimesh.load('miengvuongg4lo.STL', file_type='stl')
+        stl_mesh1 = trimesh.load('khung.STL', file_type='stl')
         fig1 = load_stl(stl_mesh1)
-        st.plotly_chart(fig1, use_container_width=True,key='1')
+        st.plotly_chart(fig1, use_container_width=True, key='1')
     with tab_stl2:
-        stl_mesh2 = trimesh.load('contruotnhua.STL', file_type='stl')
+        stl_mesh2 = trimesh.load('bangchuyen.STL', file_type='stl')
         fig2 = load_stl(stl_mesh2)
-        st.plotly_chart(fig2, use_container_width=True,key='2')
+        st.plotly_chart(fig2, use_container_width=True, key='2')
     with tab_stl3:
-        stl_mesh3 = trimesh.load('vithinhthang.STL', file_type='stl')
+        stl_mesh3 = trimesh.load('laprapbangchuyen.STL', file_type='stl')
         fig3 = load_stl(stl_mesh3)
-        st.plotly_chart(fig3, use_container_width=True,key='3')
+        st.plotly_chart(fig3, use_container_width=True, key='3')
     uploaded_file = st.file_uploader("Tải file STL của bạn", type=["stl"])
     if uploaded_file is not None:
         stl_mesh = trimesh.load(BytesIO(uploaded_file.read()), file_type='stl')
@@ -212,7 +208,7 @@ if selected == sidebar_5:
             st.warning("Vui lòng nhập giá trị!")
     # Live in Other Device
 if selected == sidebar_6:
-    st.header("YOLOv11")
+    st.header("Other Device")
     uploaded_file = st.file_uploader("Tải lên ảnh của bạn", type=["jpg", "png", "jpeg"])
     col1, col2 = st.columns(2)
     with col1:
@@ -246,5 +242,6 @@ if selected == sidebar_6:
         for i in range(cnt):
             st.text(f"{label[i]}: {(conf[i] * 100):.2f}%")
         st.toast("Done!", icon='😍')
+
 # Sidebar footer
 st.sidebar.text("@author: phamduyaaaa")
